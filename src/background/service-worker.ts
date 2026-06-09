@@ -1,6 +1,6 @@
 import { ExtractedImageSchema } from '@/types/image'
 import { imageRepository } from '@/storage/imageRepository'
-import { downloadBulk } from '@/downloader/downloadManager'
+import { downloadImages } from '@/downloader/downloadManager'
 
 // Keep-alive alarm fires every 25 seconds to prevent SW termination during downloads
 chrome.alarms.onAlarm.addListener(alarm => {
@@ -93,7 +93,7 @@ async function handleDownloadRequest(
       ? allImages.filter(img => payload.ids.includes(img.id))
       : allImages
 
-    await downloadBulk(targets, payload.folder)
+    await downloadImages(targets, payload.folder)
 
     chrome.alarms.clear('keepAlive')
     sendResponse({ success: true, count: targets.length })

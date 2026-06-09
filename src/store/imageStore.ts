@@ -38,7 +38,7 @@ interface ImageState {
   viewMode: ViewMode
   isScanning: boolean
   downloadProgress: { done: number; total: number } | null
-  selectedIds: Set<string>
+  selectedIds: string[]
 
   setImages: (images: ExtractedImage[]) => void
   addImages: (images: ExtractedImage[]) => void
@@ -67,7 +67,7 @@ export const useImageStore = create<ImageState>()(
     viewMode: 'grid',
     isScanning: false,
     downloadProgress: null,
-    selectedIds: new Set<string>(),
+    selectedIds: [],
 
     setImages: images => set(state => { state.images = images }),
     addImages: images => set(state => { state.images.push(...images) }),
@@ -77,11 +77,13 @@ export const useImageStore = create<ImageState>()(
     }),
     removeImage: id => set(state => {
       state.images = state.images.filter(img => img.id !== id)
-      state.selectedIds.delete(id)
+      if (state.selectedIds.includes(id)) {
+        state.selectedIds = state.selectedIds.filter(sid => sid !== id)
+      }
     }),
     clearImages: () => set(state => {
       state.images = []
-      state.selectedIds = new Set()
+      state.selectedIds = []
     }),
 
     setFilters: filters => set(state => { Object.assign(state.filters, filters) }),
@@ -93,15 +95,15 @@ export const useImageStore = create<ImageState>()(
     setDownloadProgress: p => set(state => { state.downloadProgress = p }),
 
     toggleSelect: id => set(state => {
-      if (state.selectedIds.has(id)) {
-        state.selectedIds.delete(id)
+      if (state.selectedIds.includes(id)) {
+        state.selectedIds = state.selectedIds.filter(sid => sid !== id)
       } else {
-        state.selectedIds.add(id)
+        state.selectedIds = [...state.selectedIds, id]
       }
     }),
     selectAll: ids => set(state => {
-      state.selectedIds = new Set(ids)
+      state.selectedIds = [...ids]
     }),
-    clearSelection: () => set(state => { state.selectedIds = new Set() }),
+    clearSelection: () => set(state => { state.selectedIds = [] }),
   }))
 )

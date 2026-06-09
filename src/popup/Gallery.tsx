@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useMemo, useRef } from 'react'
 import { FixedSizeGrid, FixedSizeList } from 'react-window'
 import type { GridChildComponentProps, ListChildComponentProps } from 'react-window'
 import { useImageStore } from '@/store/imageStore'
@@ -35,6 +35,7 @@ interface GridCellData {
   images: ExtractedImage[]
   columnCount: number
   cellSize: number
+  selectedSet: ReadonlySet<string>
 }
 
 function GridCell({ columnIndex, rowIndex, style, data }: GridChildComponentProps<GridCellData>) {
@@ -44,13 +45,20 @@ function GridCell({ columnIndex, rowIndex, style, data }: GridChildComponentProp
 
   return (
     <div style={{ ...style, padding: GAP / 2 }}>
-      <ImageCard image={image} size={data.cellSize} viewMode="grid" />
+      <ImageCard
+        key={`${image.id}-${data.selectedSet.has(image.id)}`}
+        image={image}
+        size={data.cellSize}
+        viewMode="grid"
+        isSelected={data.selectedSet.has(image.id)}
+      />
     </div>
   )
 }
 
 interface ListRowData {
   images: ExtractedImage[]
+  selectedSet: ReadonlySet<string>
 }
 
 function ListRow({ index, style, data }: ListChildComponentProps<ListRowData>) {
@@ -59,7 +67,13 @@ function ListRow({ index, style, data }: ListChildComponentProps<ListRowData>) {
 
   return (
     <div style={style}>
-      <ImageCard image={image} size={48} viewMode="list" />
+      <ImageCard
+        key={`${image.id}-${data.selectedSet.has(image.id)}`}
+        image={image}
+        size={48}
+        viewMode="list"
+        isSelected={data.selectedSet.has(image.id)}
+      />
     </div>
   )
 }
@@ -68,13 +82,28 @@ export default function Gallery() {
   const images = useImageStore(s => s.images)
   const isScanning = useImageStore(s => s.isScanning)
   const viewMode = useImageStore(s => s.viewMode)
+  const selectedIds = useImageStore(s => s.selectedIds)
   const filteredImages = useFilteredImages()
   const { settings } = useSettings()
   const gridRef = useRef<FixedSizeGrid>(null)
 
+  const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds])
+
   const cellSize = settings.thumbnailSize
   const columnCount = Math.max(1, Math.floor((POPUP_WIDTH - 2 * GAP) / (cellSize + GAP)))
   const rowCount = Math.ceil(filteredImages.length / columnCount)
+
+  const gridItemData = useMemo<GridCellData>(() => ({
+    images: filteredImages,
+    columnCount,
+    cellSize,
+    selectedSet,
+  }), [filteredImages, columnCount, cellSize, selectedSet])
+
+  const listItemData = useMemo<ListRowData>(() => ({
+    images: filteredImages,
+    selectedSet,
+  }), [filteredImages, selectedSet])
 
   if (images.length === 0) {
     return (
@@ -106,7 +135,7 @@ export default function Gallery() {
           rowCount={rowCount}
           rowHeight={cellSize + GAP}
           width={POPUP_WIDTH}
-          itemData={{ images: filteredImages, columnCount, cellSize }}
+          itemData={gridItemData}
           style={{ overflowX: 'hidden' }}
         >
           {GridCell}
@@ -117,7 +146,7 @@ export default function Gallery() {
           itemCount={filteredImages.length}
           itemSize={64}
           width={POPUP_WIDTH}
-          itemData={{ images: filteredImages }}
+          itemData={listItemData}
         >
           {ListRow}
         </FixedSizeList>

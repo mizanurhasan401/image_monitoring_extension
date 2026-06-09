@@ -10,16 +10,26 @@ interface ImageCardProps {
   image: ExtractedImage
   size: number
   viewMode: 'grid' | 'list'
+  isSelected: boolean
 }
 
-export default function ImageCard({ image, size, viewMode }: ImageCardProps) {
-  const selectedIds = useImageStore(s => s.selectedIds)
-  const { toggleSelect, updateImage, removeImage } = useImageStore()
+export default function ImageCard({ image, size, viewMode, isSelected }: ImageCardProps) {
+  const toggleSelect = useImageStore(s => s.toggleSelect)
+  const updateImage = useImageStore(s => s.updateImage)
+  const removeImage = useImageStore(s => s.removeImage)
   const { downloadSingle } = useDownload()
   const [copied, setCopied] = useState(false)
   const [imgError, setImgError] = useState(false)
 
-  const isSelected = selectedIds.has(image.id)
+  function handleToggleSelect() {
+    toggleSelect(image.id)
+  }
+
+  function handleCardClick(e: React.MouseEvent) {
+    const target = e.target as HTMLElement
+    if (target.closest('input[type="checkbox"], label')) return
+    toggleSelect(image.id)
+  }
 
   const handleImageLoad = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
     const img = e.currentTarget
@@ -52,7 +62,7 @@ export default function ImageCard({ image, size, viewMode }: ImageCardProps) {
         <input
           type="checkbox"
           checked={isSelected}
-          onChange={() => toggleSelect(image.id)}
+          onChange={() => handleToggleSelect()}
           className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
         />
 
@@ -112,7 +122,7 @@ export default function ImageCard({ image, size, viewMode }: ImageCardProps) {
           : 'border-gray-200 hover:border-gray-300'
       }`}
       style={{ width: size, height: size }}
-      onClick={() => toggleSelect(image.id)}
+      onClick={handleCardClick}
     >
       {imgError ? (
         <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-300 text-xs">
@@ -129,27 +139,16 @@ export default function ImageCard({ image, size, viewMode }: ImageCardProps) {
         />
       )}
 
-      {/* Selection checkbox overlay */}
-      <div className="absolute top-1 left-1">
-        <input
-          type="checkbox"
-          checked={isSelected}
-          onChange={e => { e.stopPropagation(); toggleSelect(image.id) }}
-          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 shadow"
-          onClick={e => e.stopPropagation()}
-        />
-      </div>
-
-      {/* Hover actions overlay */}
-      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-1.5">
+      {/* Hover actions overlay (never blocks checkbox — buttons only) */}
+      <div className="absolute inset-0 z-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none flex flex-col justify-between p-1.5">
         <div />
-        <div>
+        <div className="pointer-events-none">
           <p className="text-white text-xs truncate leading-none mb-1">{image.filename}</p>
           {(image.width && image.height) ? (
             <p className="text-gray-300 text-xs leading-none">{image.width}×{image.height}</p>
           ) : null}
         </div>
-        <div className="flex gap-1 justify-end">
+        <div className="flex gap-1 justify-end pointer-events-auto">
           <button
             onClick={e => { e.stopPropagation(); handleCopyUrl() }}
             className="p-1 bg-white/20 rounded text-white hover:bg-white/40 transition-colors"
@@ -173,6 +172,20 @@ export default function ImageCard({ image, size, viewMode }: ImageCardProps) {
           </button>
         </div>
       </div>
+
+      {/* Selection checkbox — rendered after overlay so it stays clickable */}
+      <label
+        className="absolute top-1 left-1 z-20 flex items-center justify-center"
+        onClick={e => e.stopPropagation()}
+        onMouseDown={e => e.stopPropagation()}
+      >
+        <input
+          type="checkbox"
+          checked={isSelected}
+          onChange={() => handleToggleSelect()}
+          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 shadow cursor-pointer"
+        />
+      </label>
     </div>
   )
 }

@@ -44,7 +44,7 @@ export function useDownload(): UseDownloadReturn {
   }, [defaultFolder])
 
   const downloadSelected = useCallback(async () => {
-    const ids = [...selectedIds]
+    const ids = selectedIds
     if (ids.length === 0) return
     await triggerDownload(ids)
   }, [selectedIds, triggerDownload])

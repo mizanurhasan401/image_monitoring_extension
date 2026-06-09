@@ -28,6 +28,10 @@ const chromeMock = {
   },
   downloads: {
     download: vi.fn(),
+    onChanged: {
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+    },
   },
   alarms: {
     create: vi.fn(),

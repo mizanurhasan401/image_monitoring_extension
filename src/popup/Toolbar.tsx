@@ -14,8 +14,8 @@ export default function Toolbar() {
   const { downloadSelected, downloadAll, isDownloading } = useDownload()
   const filteredImages = useFilteredImages()
 
-  const allSelected = filteredImages.length > 0 && filteredImages.every(img => selectedIds.has(img.id))
-  const selectedCount = [...selectedIds].filter(id => filteredImages.some(img => img.id === id)).length
+  const allSelected = filteredImages.length > 0 && filteredImages.every(img => selectedIds.includes(img.id))
+  const selectedCount = selectedIds.filter(id => filteredImages.some(img => img.id === id)).length
 
   function handleToggleSelectAll() {
     if (allSelected) {

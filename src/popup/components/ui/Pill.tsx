@@ -9,7 +9,7 @@ export function Pill({ active, className, children, ...props }: PillProps) {
     <button
       type="button"
       className={cn(
-        'h-7 shrink-0 rounded-lg px-3 text-xs font-medium transition-all duration-150',
+        'h-8 shrink-0 rounded-lg px-3 text-xs font-medium transition-all duration-150',
         'border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
         active
           ? 'border-accent bg-accent-muted text-accent'

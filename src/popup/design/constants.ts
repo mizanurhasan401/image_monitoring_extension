@@ -4,14 +4,13 @@ export const POPUP_MAX_HEIGHT = 600
 export const GRID_GAP = 8
 export const GALLERY_HEIGHT = 320
 
-export const FORMAT_PILLS = ['jpg', 'png', 'webp', 'svg', 'gif'] as const
-export const MORE_FORMATS = ['avif', 'bmp', 'ico'] as const
+export const FORMAT_PILLS = ['jpg', 'png'] as const
+export const MORE_FORMATS = ['webp', 'svg', 'gif', 'avif', 'bmp', 'ico'] as const
 
 export const SORT_OPTIONS = [
-  { label: 'Newest first', value: 'discoveredAt:desc' },
-  { label: 'Oldest first', value: 'discoveredAt:asc' },
-  { label: 'Name A → Z', value: 'filename:asc' },
-  { label: 'Name Z → A', value: 'filename:desc' },
+  { label: 'Newest', value: 'discoveredAt:desc' },
+  { label: 'Oldest', value: 'discoveredAt:asc' },
+  { label: 'A-Z', value: 'filename:asc' },
   { label: 'Widest', value: 'width:desc' },
   { label: 'Tallest', value: 'height:desc' },
 ] as const

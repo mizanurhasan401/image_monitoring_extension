@@ -10,7 +10,6 @@ import Header from './components/layout/Header'
 import PrimaryActions from './components/actions/PrimaryActions'
 import SearchBar from './components/filters/SearchBar'
 import FilterPills from './components/filters/FilterPills'
-import GalleryToolbar from './components/toolbar/GalleryToolbar'
 import ImageGallery from './components/gallery/ImageGallery'
 import BulkActionBar from './components/layout/BulkActionBar'
 import SettingsPanel from './components/settings/SettingsPanel'
@@ -61,7 +60,6 @@ export default function App() {
             <PrimaryActions />
             <SearchBar ref={searchRef} />
             <FilterPills />
-            <GalleryToolbar />
             <ImageGallery />
           </div>
         )}

@@ -1,10 +1,18 @@
 import { ExtractedImageSchema } from '@/types/image'
+import { purgeExpiredCache } from '@/storage/cacheCleanup'
+import { loadSettings } from '@/storage/loadSettings'
+import { persistPageScan } from '@/storage/persistScan'
 import { imageRepository } from '@/storage/imageRepository'
 import { downloadImages } from '@/downloader/downloadManager'
+import { deduplicateImages } from '@/utils/deduplication'
 
-// Keep-alive alarm fires every 25 seconds to prevent SW termination during downloads
-chrome.alarms.onAlarm.addListener(alarm => {
-  if (alarm.name !== 'keepAlive') return
+const CACHE_CLEANUP_ALARM = 'cacheCleanup'
+
+chrome.alarms.onAlarm.addListener(async alarm => {
+  if (alarm.name === CACHE_CLEANUP_ALARM) {
+    const settings = await loadSettings()
+    await purgeExpiredCache(settings.cacheRetentionDays)
+  }
 })
 
 interface ContentScriptResponse {
@@ -64,17 +72,24 @@ async function handleScanRequest(
       return
     }
 
-    // Validate and persist images
-    const valid = response.images
+    const settings = await loadSettings()
+
+    let valid = response.images
       .map(raw => ExtractedImageSchema.safeParse(raw))
       .filter(r => r.success)
       .map(r => r.data!)
 
-    if (valid.length > 0) {
-      await imageRepository.upsertMany(valid)
+    if (settings.autoRemoveDuplicates) {
+      valid = deduplicateImages(valid)
     }
 
-    sendResponse({ success: true, count: valid.length })
+    const persisted = await persistPageScan(response.pageUrl, valid, {
+      maxImageCount: settings.maxImageCount,
+    })
+
+    await purgeExpiredCache(settings.cacheRetentionDays)
+
+    sendResponse({ success: true, count: persisted.length })
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Unknown error'
     sendResponse({ success: false, error: msg })
@@ -88,10 +103,9 @@ async function handleDownloadRequest(
   try {
     chrome.alarms.create('keepAlive', { periodInMinutes: 0.4 })
 
-    const allImages = await imageRepository.getAll()
     const targets = payload.ids.length > 0
-      ? allImages.filter(img => payload.ids.includes(img.id))
-      : allImages
+      ? await imageRepository.getByIds(payload.ids)
+      : []
 
     await downloadImages(targets, payload.folder)
 
@@ -105,5 +119,6 @@ async function handleDownloadRequest(
 }
 
 chrome.runtime.onInstalled.addListener(() => {
-  console.log('[ImageExtractor] Extension installed')
+  chrome.alarms.create(CACHE_CLEANUP_ALARM, { periodInMinutes: 24 * 60 })
+  loadSettings().then(s => purgeExpiredCache(s.cacheRetentionDays))
 })

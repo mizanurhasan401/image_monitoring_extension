@@ -1,5 +1,5 @@
-import { nanoid } from 'nanoid'
 import type { ExtractedImage } from '@/types/image'
+import { stableImageId } from '@/utils/imageId'
 import { isValidImageUrl, resolveUrl, extractFilename, extractExtension } from '@/utils/urlUtils'
 
 const META_SELECTORS: Array<{ selector: string; attr: string }> = [
@@ -11,6 +11,19 @@ const META_SELECTORS: Array<{ selector: string; attr: string }> = [
   { selector: 'link[rel="preload"][as="image"]', attr: 'href' },
 ]
 
+function makeMetaImage(resolved: string): ExtractedImage {
+  const pageUrl = location.href
+  return {
+    id: stableImageId(pageUrl, resolved),
+    url: resolved,
+    filename: extractFilename(resolved),
+    extension: extractExtension(new URL(resolved).pathname) || 'unknown',
+    sourceType: 'meta',
+    discoveredAt: Date.now(),
+    pageUrl,
+  }
+}
+
 export function extractMetaImages(doc: Document): ExtractedImage[] {
   const images: ExtractedImage[] = []
 
@@ -21,17 +34,7 @@ export function extractMetaImages(doc: Document): ExtractedImage[] {
     if (!val) continue
     const resolved = resolveUrl(val)
     if (isValidImageUrl(resolved)) {
-      const filename = extractFilename(resolved)
-      images.push({
-        id: nanoid(),
-        url: resolved,
-        filename,
-        extension: extractExtension(new URL(resolved).pathname) || 'unknown',
-        sourceType: 'meta',
-        discoveredAt: Date.now(),
-        pageUrl: location.href,
-        selected: false,
-      })
+      images.push(makeMetaImage(resolved))
     }
   }
 

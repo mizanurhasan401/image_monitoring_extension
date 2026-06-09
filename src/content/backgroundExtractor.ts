@@ -1,8 +1,21 @@
-import { nanoid } from 'nanoid'
 import type { ExtractedImage } from '@/types/image'
+import { stableImageId } from '@/utils/imageId'
 import { isValidImageUrl, resolveUrl, extractFilename, extractExtension } from '@/utils/urlUtils'
 
 const CSS_URL_REGEX = /url\(["']?([^"')]+)["']?\)/g
+
+function makeBackgroundImage(resolved: string): ExtractedImage {
+  const pageUrl = location.href
+  return {
+    id: stableImageId(pageUrl, resolved),
+    url: resolved,
+    filename: extractFilename(resolved),
+    extension: extractExtension(new URL(resolved).pathname) || 'unknown',
+    sourceType: 'background',
+    discoveredAt: Date.now(),
+    pageUrl,
+  }
+}
 
 export function extractBackgroundImages(root: Document): ExtractedImage[] {
   const images: ExtractedImage[] = []
@@ -29,17 +42,7 @@ export function extractBackgroundImages(root: Document): ExtractedImage[] {
       if (!rawUrl) continue
       const resolved = resolveUrl(rawUrl)
       if (isValidImageUrl(resolved)) {
-        const filename = extractFilename(resolved)
-        images.push({
-          id: nanoid(),
-          url: resolved,
-          filename,
-          extension: extractExtension(new URL(resolved).pathname) || 'unknown',
-          sourceType: 'background',
-          discoveredAt: Date.now(),
-          pageUrl: location.href,
-          selected: false,
-        })
+        images.push(makeBackgroundImage(resolved))
       }
     }
   })

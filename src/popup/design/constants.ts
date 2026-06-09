@@ -23,7 +23,7 @@ export const GRID_SIZE_OPTIONS = [
 ] as const
 
 export const EXPORT_OPTIONS = [
-  { label: 'Export as JSON', value: 'json' },
-  { label: 'Export as CSV', value: 'csv' },
-  { label: 'Export as TXT', value: 'txt' },
+  { label: 'JSON', value: 'json' },
+  { label: 'CSV', value: 'csv' },
+  { label: 'TXT', value: 'txt' },
 ] as const

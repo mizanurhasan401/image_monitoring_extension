@@ -19,6 +19,7 @@ export function useSettings(): UseSettingsReturn {
       defaultExportFormat: store.defaultExportFormat,
       maxImageCount: store.maxImageCount,
       thumbnailSize: store.thumbnailSize,
+      cacheRetentionDays: store.cacheRetentionDays,
     },
     isLoaded: store.isLoaded,
     update: store.update,

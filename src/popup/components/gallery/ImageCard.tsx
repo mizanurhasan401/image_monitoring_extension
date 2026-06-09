@@ -1,5 +1,4 @@
 import { useState, useCallback, useMemo } from 'react'
-import { motion } from 'framer-motion'
 import { Download, Copy, ExternalLink, Check } from 'lucide-react'
 import * as Checkbox from '@radix-ui/react-checkbox'
 import { useImageStore } from '@/store/imageStore'
@@ -58,10 +57,7 @@ export default function ImageCard({ image, size, index, isSelected, onSelect }: 
   const overlayVisible = hovered || isSelected
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.96 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.2, ease: 'easeOut' }}
+    <div
       className={cn(
         'group relative cursor-pointer overflow-hidden rounded-xl border bg-surface-secondary shadow-soft transition-shadow duration-200',
         isSelected
@@ -85,6 +81,7 @@ export default function ImageCard({ image, size, index, isSelected, onSelect }: 
           onError={() => setImgError(true)}
           className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
           loading="lazy"
+          decoding="async"
         />
       )}
 
@@ -173,7 +170,7 @@ export default function ImageCard({ image, size, index, isSelected, onSelect }: 
           </ActionButton>
         </div>
       </div>
-    </motion.div>
+    </div>
   )
 }
 

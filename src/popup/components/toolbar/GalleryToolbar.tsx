@@ -4,7 +4,8 @@ import { useFilteredImages } from '@/hooks/useFilteredImages'
 import { useSettings } from '@/hooks/useSettings'
 import { useExport } from '@/hooks/useExport'
 import type { SortField } from '@/store/imageStore'
-import { SORT_OPTIONS, GRID_SIZE_OPTIONS, EXPORT_OPTIONS } from '@/popup/design/constants'
+import { SORT_OPTIONS, GRID_SIZE_OPTIONS } from '@/popup/design/constants'
+import { buildExportDropdownOptions } from '@/popup/design/exportOptions'
 import { Dropdown } from '../ui/Dropdown'
 import { cn } from '@/utils/cn'
 
@@ -60,7 +61,7 @@ export default function GalleryToolbar() {
           label="Size"
         />
         <Dropdown
-          options={EXPORT_OPTIONS.map(o => ({ value: o.value, label: o.label }))}
+          options={buildExportDropdownOptions()}
           onSelect={handleExport}
           trigger={(
             <span className="inline-flex items-center gap-1.5">

@@ -3,7 +3,7 @@ import type { ExtractedImage } from '@/types/image'
 type ExportFormat = 'json' | 'csv' | 'txt'
 
 export function toJSON(images: ExtractedImage[]): string {
-  const data = images.map(({ id: _id, selected: _sel, ...rest }) => rest)
+  const data = images.map(({ id: _id, ...rest }) => rest)
   return JSON.stringify(data, null, 2)
 }
 

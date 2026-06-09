@@ -4,7 +4,7 @@ import { useImageStore } from '@/store/imageStore'
 import { useFilteredImages } from '@/hooks/useFilteredImages'
 import { useDownload } from '@/hooks/useDownload'
 import { useExport } from '@/hooks/useExport'
-import { EXPORT_OPTIONS } from '@/popup/design/constants'
+import { buildExportDropdownOptions } from '@/popup/design/exportOptions'
 import { Button } from '../ui/Button'
 import { Dropdown } from '../ui/Dropdown'
 import { cn } from '@/utils/cn'
@@ -39,10 +39,6 @@ export default function BulkActionBar() {
           )}
         >
           <div className="flex items-center gap-3">
-            <div className="flex h-8 min-w-[32px] items-center justify-center rounded-lg bg-accent-muted px-2">
-              <span className="text-xs font-semibold text-accent">{count}</span>
-            </div>
-
             <span className="min-w-0 truncate text-xs font-medium text-text-secondary">
               {count === 1 ? '1 image selected' : `${count} images selected`}
             </span>
@@ -56,7 +52,8 @@ export default function BulkActionBar() {
 
             <Dropdown
               variant="ghost"
-              options={EXPORT_OPTIONS.map(o => ({ value: o.value, label: o.label }))}
+              placement="top"
+              options={buildExportDropdownOptions()}
               onSelect={handleExport}
               trigger={(
                 <span className="inline-flex items-center gap-1.5">

@@ -10,7 +10,6 @@ export const ExtractedImageSchema = z.object({
   sourceType: z.enum(['img', 'srcset', 'background', 'meta', 'lazy']),
   discoveredAt: z.number().int(),
   pageUrl: z.string().url(),
-  selected: z.boolean(),
 })
 
 export type ExtractedImage = z.infer<typeof ExtractedImageSchema>

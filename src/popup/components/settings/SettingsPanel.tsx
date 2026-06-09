@@ -108,6 +108,18 @@ export default function SettingsPanel({ onBack }: SettingsPanelProps) {
               className="field-input"
             />
           </Field>
+
+          <Field label="Cache retention (days)">
+            <input
+              type="number"
+              min={1}
+              max={90}
+              value={settings.cacheRetentionDays}
+              onChange={e => handleSave({ cacheRetentionDays: Number(e.target.value) })}
+              className="field-input"
+            />
+            <p className="mt-1 text-2xs text-text-tertiary">Older pages are removed automatically</p>
+          </Field>
         </Section>
 
         <Section title="Extraction">

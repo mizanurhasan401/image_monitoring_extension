@@ -11,7 +11,6 @@ function makeImage(id: string, filename: string): ExtractedImage {
     sourceType: 'img',
     discoveredAt: 1,
     pageUrl: 'https://example.com',
-    selected: false,
   }
 }
 

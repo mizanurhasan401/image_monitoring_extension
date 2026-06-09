@@ -51,7 +51,7 @@ describe('imageStore selection', () => {
           extension: 'png',
           sourceType: 'img',
           discoveredAt: 1,
-          selected: false,
+          pageUrl: 'https://example.com',
         },
       ],
     })

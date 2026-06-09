@@ -1,18 +1,18 @@
-import { nanoid } from 'nanoid'
 import type { ExtractedImage } from '@/types/image'
+import { stableImageId } from '@/utils/imageId'
 import { isValidImageUrl, resolveUrl, extractFilename, extractExtension } from '@/utils/urlUtils'
 
 function makeImage(url: string, sourceType: ExtractedImage['sourceType']): ExtractedImage {
   const filename = extractFilename(url)
+  const pageUrl = location.href
   return {
-    id: nanoid(),
+    id: stableImageId(pageUrl, url),
     url,
     filename,
     extension: extractExtension(new URL(url).pathname) || 'unknown',
     sourceType,
     discoveredAt: Date.now(),
-    pageUrl: location.href,
-    selected: false,
+    pageUrl,
   }
 }
 

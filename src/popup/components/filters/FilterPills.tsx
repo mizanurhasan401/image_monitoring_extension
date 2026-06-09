@@ -4,7 +4,8 @@ import { useImageStore } from '@/store/imageStore'
 import { useFilteredImages } from '@/hooks/useFilteredImages'
 import { useSettings } from '@/hooks/useSettings'
 import { useExport } from '@/hooks/useExport'
-import { FORMAT_PILLS, MORE_FORMATS, SORT_OPTIONS, GRID_SIZE_OPTIONS, EXPORT_OPTIONS } from '@/popup/design/constants'
+import { FORMAT_PILLS, MORE_FORMATS, SORT_OPTIONS, GRID_SIZE_OPTIONS } from '@/popup/design/constants'
+import { buildExportDropdownOptions } from '@/popup/design/exportOptions'
 import { Pill } from '../ui/Pill'
 import { Dropdown } from '../ui/Dropdown'
 import MoreFilters from './MoreFilters'
@@ -82,7 +83,7 @@ export default function FilterPills() {
             trigger={<LayoutGrid size={14} />}
           />
           <Dropdown
-            options={EXPORT_OPTIONS.map(o => ({ value: o.value, label: o.label }))}
+            options={buildExportDropdownOptions()}
             onSelect={handleExport}
             trigger={<span className="inline-flex items-center gap-1.5"><FileDown size={14} />Export</span>}
           />

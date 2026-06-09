@@ -13,7 +13,6 @@ function makeImg(id: string, pageUrl = 'https://example.com'): ExtractedImage {
     sourceType: 'img',
     discoveredAt: Date.now(),
     pageUrl,
-    selected: false,
   }
 }
 
@@ -71,5 +70,47 @@ describe('imageRepository', () => {
     const all = await imageRepository.getAll()
     expect(all[0]?.width).toBe(800)
     expect(all[0]?.height).toBe(600)
+  })
+
+  it('replacePage swaps page images in one transaction', async () => {
+    const page = 'https://replace.com'
+    await imageRepository.upsertMany([
+      makeImg('g1', page),
+      makeImg('g2', page),
+      makeImg('g3', 'https://other.com'),
+    ])
+
+    await imageRepository.replacePage(page, [makeImg('new1', page), makeImg('new2', page)])
+
+    const pageImages = await imageRepository.getByPage(page)
+    expect(pageImages).toHaveLength(2)
+    expect(pageImages.map(img => img.id).sort()).toEqual(['new1', 'new2'])
+    expect(await imageRepository.getByPage('https://other.com')).toHaveLength(1)
+  })
+
+  it('getByIds returns only existing images', async () => {
+    await imageRepository.upsertMany([makeImg('h1'), makeImg('h2')])
+
+    const results = await imageRepository.getByIds(['h1', 'missing', 'h2'])
+    expect(results).toHaveLength(2)
+    expect(results.map(img => img.id).sort()).toEqual(['h1', 'h2'])
+  })
+
+  it('getByIds returns empty array for empty input', async () => {
+    await imageRepository.upsert(makeImg('i1'))
+    expect(await imageRepository.getByIds([])).toEqual([])
+  })
+
+  it('deleteOlderThan removes images discovered before cutoff', async () => {
+    const old = makeImg('j1')
+    old.discoveredAt = 1000
+    const recent = makeImg('j2')
+    recent.discoveredAt = 5000
+
+    await imageRepository.upsertMany([old, recent])
+
+    const deleted = await imageRepository.deleteOlderThan(3000)
+    expect(deleted).toBe(1)
+    expect((await imageRepository.getAll()).map(img => img.id)).toEqual(['j2'])
   })
 })

@@ -6,6 +6,7 @@ import { Button } from './Button'
 export interface DropdownOption {
   value: string
   label: string
+  icon?: React.ReactNode
 }
 
 interface DropdownProps {
@@ -20,6 +21,7 @@ interface DropdownProps {
   className?: string
   menuClassName?: string
   align?: 'left' | 'right'
+  placement?: 'bottom' | 'top'
 }
 
 export function Dropdown({
@@ -34,6 +36,7 @@ export function Dropdown({
   className,
   menuClassName,
   align = 'right',
+  placement = 'bottom',
 }: DropdownProps) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -84,7 +87,8 @@ export function Dropdown({
         <div
           role="listbox"
           className={cn(
-            'absolute top-full z-50 mt-1 min-w-full overflow-hidden rounded-xl border border-border bg-surface-elevated py-1 shadow-card',
+            'absolute z-50 min-w-full overflow-hidden rounded-xl border border-border bg-surface-elevated py-1 shadow-card',
+            placement === 'top' ? 'bottom-full mb-1' : 'top-full mt-1',
             align === 'right' ? 'right-0' : 'left-0',
             menuClassName,
           )}
@@ -103,7 +107,10 @@ export function Dropdown({
                   : 'text-text-secondary hover:bg-surface-tertiary hover:text-text-primary',
               )}
             >
-              {opt.label}
+              <span className="inline-flex items-center gap-2">
+                {opt.icon}
+                {opt.label}
+              </span>
             </button>
           ))}
         </div>

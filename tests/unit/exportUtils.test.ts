@@ -13,7 +13,6 @@ const sampleImages: ExtractedImage[] = [
     sourceType: 'img',
     discoveredAt: 1000000,
     pageUrl: 'https://example.com',
-    selected: false,
   },
 ]
 

@@ -47,7 +47,7 @@ export default function App() {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className="relative flex h-full w-popup flex-col bg-surface text-text-primary">
+    <div className="relative flex h-full min-h-full w-full flex-col overflow-hidden bg-surface text-text-primary">
       <Header
         settingsOpen={settingsOpen}
         onOpenSettings={() => setSettingsOpen(v => !v)}

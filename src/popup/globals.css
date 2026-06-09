@@ -2,8 +2,40 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Extension popup shell — outside @layer to override Tailwind preflight */
+html {
+  height: 0;
+  overflow: hidden;
+}
+
+html,
+body {
+  width: 620px;
+  min-height: 480px;
+  max-height: 600px;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background-color: var(--color-surface);
+  overflow: hidden;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  box-shadow: none;
+  background-color: var(--color-surface);
+}
+
 @layer base {
   :root {
+    color-scheme: light;
     --color-surface: #ffffff;
     --color-surface-secondary: #f8f9fb;
     --color-surface-tertiary: #f1f3f6;
@@ -31,6 +63,7 @@
   }
 
   .dark {
+    color-scheme: dark;
     --color-surface: #0f1117;
     --color-surface-secondary: #161922;
     --color-surface-tertiary: #1c1f2a;
@@ -64,23 +97,12 @@
   }
 
   body {
-    width: 620px;
-    min-height: 480px;
-    max-height: 600px;
-    margin: 0;
     font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
     font-size: 14px;
     line-height: 1.5;
     color: var(--color-text-primary);
-    background-color: var(--color-surface);
-    overflow: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-  }
-
-  #root {
-    width: 100%;
-    height: 100%;
   }
 
   img {

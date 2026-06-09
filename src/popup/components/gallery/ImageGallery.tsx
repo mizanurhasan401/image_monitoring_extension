@@ -4,7 +4,9 @@ import type { GridChildComponentProps } from 'react-window'
 import { useImageStore } from '@/store/imageStore'
 import { useFilteredImages } from '@/hooks/useFilteredImages'
 import { useSettings } from '@/hooks/useSettings'
-import { POPUP_WIDTH, GALLERY_HEIGHT, GRID_GAP } from '@/popup/design/constants'
+import { useContainerWidth } from '@/popup/hooks/useContainerWidth'
+import { computeGridLayout } from '@/popup/utils/gridLayout'
+import { GALLERY_HEIGHT, GRID_GAP } from '@/popup/design/constants'
 import ImageCard from './ImageCard'
 import EmptyState from './EmptyState'
 import LoadingState from './LoadingState'
@@ -44,13 +46,17 @@ export default function ImageGallery() {
   const hasSelection = selectedIds.length > 0
   const filteredImages = useFilteredImages()
   const { settings } = useSettings()
+  const { ref: containerRef, width: containerWidth } = useContainerWidth<HTMLDivElement>()
   const gridRef = useRef<FixedSizeGrid>(null)
 
   const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds])
 
-  const cellSize = settings.thumbnailSize
-  const columnCount = Math.max(1, Math.floor((POPUP_WIDTH - GRID_GAP) / (cellSize + GRID_GAP)))
-  const rowCount = Math.ceil(filteredImages.length / columnCount)
+  const layout = useMemo(
+    () => computeGridLayout(containerWidth, settings.thumbnailSize),
+    [containerWidth, settings.thumbnailSize],
+  )
+
+  const rowCount = Math.ceil(filteredImages.length / layout.columnCount)
 
   const handleSelect = useCallback((index: number, shiftKey: boolean) => {
     const {
@@ -76,14 +82,14 @@ export default function ImageGallery() {
 
   const gridItemData = useMemo<GridCellData>(() => ({
     images: filteredImages,
-    columnCount,
-    cellSize,
+    columnCount: layout.columnCount,
+    cellSize: layout.cellSize,
     selectedSet,
     onSelect: handleSelect,
-  }), [filteredImages, columnCount, cellSize, selectedSet, handleSelect])
+  }), [filteredImages, layout.columnCount, layout.cellSize, selectedSet, handleSelect])
 
   if (isScanning && images.length === 0) {
-    return <LoadingState />
+    return <LoadingState containerWidth={containerWidth} />
   }
 
   if (images.length === 0) {
@@ -95,17 +101,20 @@ export default function ImageGallery() {
   }
 
   return (
-    <div className={`relative min-h-0 flex-1 ${hasSelection ? 'pb-14' : ''}`}>
+    <div
+      ref={containerRef}
+      className={`relative w-full min-h-0 flex-1 ${hasSelection ? 'pb-14' : ''}`}
+    >
       <FixedSizeGrid<GridCellData>
         ref={gridRef}
-        columnCount={columnCount}
-        columnWidth={cellSize + GRID_GAP}
+        columnCount={layout.columnCount}
+        columnWidth={layout.columnWidth}
         height={GALLERY_HEIGHT}
         rowCount={rowCount}
-        rowHeight={cellSize + GRID_GAP}
-        width={POPUP_WIDTH}
+        rowHeight={layout.rowHeight}
+        width={layout.gridWidth}
         itemData={gridItemData}
-        className="scrollbar-thin"
+        className="w-full"
         style={{ overflowX: 'hidden' }}
       >
         {GridCell}

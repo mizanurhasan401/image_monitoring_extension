@@ -22,3 +22,9 @@ export const GRID_SIZE_OPTIONS = [
   { label: 'Large', value: '160' },
   { label: 'XL', value: '200' },
 ] as const
+
+export const EXPORT_OPTIONS = [
+  { label: 'Export as JSON', value: 'json' },
+  { label: 'Export as CSV', value: 'csv' },
+  { label: 'Export as TXT', value: 'txt' },
+] as const

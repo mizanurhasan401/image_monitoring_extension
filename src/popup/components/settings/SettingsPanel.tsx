@@ -6,6 +6,7 @@ import { useImageStore } from '@/store/imageStore'
 import { useThemeStore, type ThemeMode } from '@/store/themeStore'
 import { imageRepository } from '@/storage/imageRepository'
 import { Button } from '../ui/Button'
+import { Switch } from '../ui/Switch'
 import { cn } from '@/utils/cn'
 
 interface SettingsPanelProps {
@@ -202,29 +203,20 @@ function Toggle({
   checked: boolean
   onChange: (v: boolean) => void
 }) {
+  const id = label.toLowerCase().replace(/\s+/g, '-')
+
   return (
-    <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border-subtle bg-surface-secondary p-3">
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        onClick={() => onChange(!checked)}
-        className={cn(
-          'relative mt-0.5 h-5 w-9 shrink-0 rounded-full transition-colors',
-          checked ? 'bg-accent' : 'bg-border-strong',
-        )}
-      >
-        <span
-          className={cn(
-            'absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform',
-            checked ? 'translate-x-4' : 'translate-x-0.5',
-          )}
-        />
-      </button>
-      <div>
+    <div className="flex items-center gap-3 rounded-xl border border-border-subtle bg-surface-secondary p-3">
+      <Switch
+        id={id}
+        checked={checked}
+        onChange={onChange}
+        aria-label={label}
+      />
+      <label htmlFor={id} className="min-w-0 flex-1 cursor-pointer">
         <p className="text-xs font-medium text-text-primary">{label}</p>
         <p className="text-2xs text-text-tertiary">{description}</p>
-      </div>
-    </label>
+      </label>
+    </div>
   )
 }

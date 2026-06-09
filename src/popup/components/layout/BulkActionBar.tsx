@@ -1,20 +1,28 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { Download, X } from 'lucide-react'
+import { Download, FileDown, X } from 'lucide-react'
 import { useImageStore } from '@/store/imageStore'
 import { useFilteredImages } from '@/hooks/useFilteredImages'
 import { useDownload } from '@/hooks/useDownload'
+import { useExport } from '@/hooks/useExport'
+import { EXPORT_OPTIONS } from '@/popup/design/constants'
 import { Button } from '../ui/Button'
-import ExportMenu from '../export/ExportMenu'
+import { Dropdown } from '../ui/Dropdown'
+import { cn } from '@/utils/cn'
 
 export default function BulkActionBar() {
   const selectedIds = useImageStore(s => s.selectedIds)
   const clearSelection = useImageStore(s => s.clearSelection)
   const filteredImages = useFilteredImages()
   const { downloadSelected, isDownloading } = useDownload()
+  const { exportImages } = useExport()
 
   const selectedImages = filteredImages.filter(img => selectedIds.includes(img.id))
   const count = selectedImages.length
   const visible = count > 0
+
+  function handleExport(format: string) {
+    exportImages(selectedImages, format as 'json' | 'csv' | 'txt')
+  }
 
   return (
     <AnimatePresence>
@@ -24,14 +32,18 @@ export default function BulkActionBar() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 80, opacity: 0 }}
           transition={{ type: 'spring', stiffness: 400, damping: 32 }}
-          className="absolute inset-x-0 bottom-0 z-30 border-t border-border-subtle bg-surface-elevated/95 px-4 py-3 shadow-bulk-bar backdrop-blur-md"
+          className={cn(
+            'absolute inset-x-0 bottom-0 z-30',
+            'border-t border-border-subtle bg-surface-elevated/95 px-4 py-3',
+            'shadow-bulk-bar backdrop-blur-md',
+          )}
         >
           <div className="flex items-center gap-3">
             <div className="flex h-8 min-w-[32px] items-center justify-center rounded-lg bg-accent-muted px-2">
               <span className="text-xs font-semibold text-accent">{count}</span>
             </div>
 
-            <span className="text-xs font-medium text-text-secondary">
+            <span className="min-w-0 truncate text-xs font-medium text-text-secondary">
               {count === 1 ? '1 image selected' : `${count} images selected`}
             </span>
 
@@ -42,7 +54,17 @@ export default function BulkActionBar() {
               Deselect all
             </Button>
 
-            <ExportMenu images={selectedImages} variant="ghost" />
+            <Dropdown
+              variant="ghost"
+              options={EXPORT_OPTIONS.map(o => ({ value: o.value, label: o.label }))}
+              onSelect={handleExport}
+              trigger={(
+                <span className="inline-flex items-center gap-1.5">
+                  <FileDown size={14} />
+                  Export
+                </span>
+              )}
+            />
 
             <Button
               variant="primary"

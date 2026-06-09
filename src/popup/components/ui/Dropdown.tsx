@@ -9,17 +9,36 @@ export interface DropdownOption {
 }
 
 interface DropdownProps {
-  value: string
   options: DropdownOption[]
-  onChange: (value: string) => void
+  value?: string
+  onChange?: (value: string) => void
+  onSelect?: (value: string) => void
+  trigger?: React.ReactNode
   label?: string
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger'
+  size?: 'sm' | 'md' | 'icon'
   className?: string
+  menuClassName?: string
+  align?: 'left' | 'right'
 }
 
-export function Dropdown({ value, options, onChange, label, className }: DropdownProps) {
+export function Dropdown({
+  options,
+  value,
+  onChange,
+  onSelect,
+  trigger,
+  label,
+  variant = 'secondary',
+  size = 'sm',
+  className,
+  menuClassName,
+  align = 'right',
+}: DropdownProps) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
-  const selected = options.find(o => o.value === value)
+  const selected = value !== undefined ? options.find(o => o.value === value) : undefined
+  const handleSelect = onChange ?? onSelect
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -29,35 +48,58 @@ export function Dropdown({ value, options, onChange, label, className }: Dropdow
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
+  function handleOptionClick(optionValue: string) {
+    handleSelect?.(optionValue)
+    setOpen(false)
+  }
+
+  const display = trigger ?? label ?? selected?.label ?? options[0]?.label
+
   return (
     <div ref={ref} className={cn('relative', className)}>
       <Button
-        variant="secondary"
-        size="sm"
+        variant={variant}
+        size={size}
         onClick={() => setOpen(v => !v)}
-        className="min-w-[108px] justify-between"
+        className={cn(
+          'justify-between gap-1.5',
+          !trigger && 'min-w-[96px]',
+        )}
         aria-haspopup="listbox"
         aria-expanded={open}
       >
-        <span className="truncate">{label ?? selected?.label}</span>
-        <ChevronDown size={14} className={cn('shrink-0 text-text-tertiary transition-transform', open && 'rotate-180')} />
+        <span className="inline-flex min-w-0 items-center gap-1.5 truncate">
+          {display}
+        </span>
+        <ChevronDown
+          size={14}
+          className={cn(
+            'shrink-0 text-text-tertiary transition-transform duration-150',
+            open && 'rotate-180',
+          )}
+        />
       </Button>
 
       {open && (
         <div
           role="listbox"
-          className="absolute right-0 top-full z-50 mt-1 min-w-full overflow-hidden rounded-xl border border-border bg-surface-elevated py-1 shadow-card"
+          className={cn(
+            'absolute top-full z-50 mt-1 min-w-full overflow-hidden rounded-xl border border-border bg-surface-elevated py-1 shadow-card',
+            align === 'right' ? 'right-0' : 'left-0',
+            menuClassName,
+          )}
         >
           {options.map(opt => (
             <button
               key={opt.value}
+              type="button"
               role="option"
               aria-selected={opt.value === value}
-              onClick={() => { onChange(opt.value); setOpen(false) }}
+              onClick={() => handleOptionClick(opt.value)}
               className={cn(
                 'w-full px-3 py-2 text-left text-xs transition-colors',
                 opt.value === value
-                  ? 'bg-accent-muted text-accent font-medium'
+                  ? 'bg-accent-muted font-medium text-accent'
                   : 'text-text-secondary hover:bg-surface-tertiary hover:text-text-primary',
               )}
             >

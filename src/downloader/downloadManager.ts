@@ -92,7 +92,7 @@ export async function downloadBytes(
     return downloadImage(dataUrl, filename, folder)
   }
 
-  const blob = new Blob([bytes], { type: mimeType })
+  const blob = new Blob([bytes as BlobPart], { type: mimeType })
   const blobUrl = URL.createObjectURL(blob)
   try {
     const downloadId = await downloadImage(blobUrl, filename, folder)

@@ -32,6 +32,13 @@ describe('imageStore selection', () => {
     expect(useImageStore.getState().selectedIds).toEqual([])
   })
 
+  it('selectRange merges ids into selection', () => {
+    const { selectRange, toggleSelect } = useImageStore.getState()
+    toggleSelect('a')
+    selectRange(['b', 'c'])
+    expect([...useImageStore.getState().selectedIds].sort()).toEqual(['a', 'b', 'c'])
+  })
+
   it('removeImage drops id from selection', () => {
     const { removeImage, selectAll } = useImageStore.getState()
 

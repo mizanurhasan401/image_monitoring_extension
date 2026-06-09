@@ -39,6 +39,7 @@ interface ImageState {
   isScanning: boolean
   downloadProgress: { done: number; total: number } | null
   selectedIds: string[]
+  lastSelectedIndex: number | null
 
   setImages: (images: ExtractedImage[]) => void
   addImages: (images: ExtractedImage[]) => void
@@ -56,6 +57,8 @@ interface ImageState {
 
   toggleSelect: (id: string) => void
   selectAll: (ids: string[]) => void
+  selectRange: (ids: string[]) => void
+  setLastSelectedIndex: (index: number | null) => void
   clearSelection: () => void
 }
 
@@ -68,6 +71,7 @@ export const useImageStore = create<ImageState>()(
     isScanning: false,
     downloadProgress: null,
     selectedIds: [],
+    lastSelectedIndex: null,
 
     setImages: images => set(state => { state.images = images }),
     addImages: images => set(state => { state.images.push(...images) }),
@@ -104,6 +108,14 @@ export const useImageStore = create<ImageState>()(
     selectAll: ids => set(state => {
       state.selectedIds = [...ids]
     }),
-    clearSelection: () => set(state => { state.selectedIds = [] }),
+    selectRange: ids => set(state => {
+      const merged = new Set([...state.selectedIds, ...ids])
+      state.selectedIds = [...merged]
+    }),
+    setLastSelectedIndex: index => set(state => { state.lastSelectedIndex = index }),
+    clearSelection: () => set(state => {
+      state.selectedIds = []
+      state.lastSelectedIndex = null
+    }),
   }))
 )

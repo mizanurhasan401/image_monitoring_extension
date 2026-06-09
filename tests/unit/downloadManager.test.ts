@@ -33,7 +33,12 @@ describe('makeUniqueFilenames', () => {
 describe('downloadImages', () => {
   beforeEach(() => {
     vi.restoreAllMocks()
-    chrome.downloads.download = vi.fn((_opts, cb) => cb?.(1))
+    chrome.downloads.download = vi.fn(
+      (_opts: chrome.downloads.DownloadOptions, cb?: (downloadId: number) => void) => {
+        cb?.(1)
+        return Promise.resolve(1)
+      },
+    ) as typeof chrome.downloads.download
     chrome.runtime.lastError = undefined
     URL.createObjectURL = vi.fn(() => 'blob:mock-zip')
     URL.revokeObjectURL = vi.fn()

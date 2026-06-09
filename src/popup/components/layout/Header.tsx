@@ -23,14 +23,12 @@ export default function Header({ onOpenSettings, settingsOpen }: HeaderProps) {
   return (
     <header className="flex h-12 shrink-0 items-center justify-between border-b border-border-subtle bg-surface px-4">
       <div className="flex items-center gap-3">
-        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-accent-muted">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-            <rect x="1" y="1" width="6" height="6" rx="1.5" fill="currentColor" className="text-accent" />
-            <rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor" className="text-accent/60" />
-            <rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor" className="text-accent/60" />
-            <rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor" className="text-accent/40" />
-          </svg>
-        </div>
+        <img
+          src={chrome.runtime.getURL('icon32.png')}
+          alt=""
+          className="h-8 w-8 shrink-0 rounded-xl object-contain"
+          aria-hidden
+        />
         <div>
           <h1 className="text-sm font-semibold text-text-primary leading-none">Image Extractor</h1>
           <p className="mt-0.5 text-2xs text-text-tertiary">

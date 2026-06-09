@@ -5,6 +5,7 @@ import { persistPageScan } from '@/storage/persistScan'
 import { imageRepository } from '@/storage/imageRepository'
 import { downloadImages } from '@/downloader/downloadManager'
 import { deduplicateImages } from '@/utils/deduplication'
+import { userMessages } from '@/utils/userMessages'
 
 const CACHE_CLEANUP_ALARM = 'cacheCleanup'
 
@@ -52,7 +53,13 @@ async function handleScanRequest(
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
     if (!tab?.id) {
-      sendResponse({ success: false, error: 'No active tab found' })
+      sendResponse({ success: false, error: userMessages.scan.noActiveTab })
+      return
+    }
+
+    const tabUrl = tab.url ?? ''
+    if (!tabUrl.startsWith('http://') && !tabUrl.startsWith('https://')) {
+      sendResponse({ success: false, error: userMessages.scan.unsupportedPage })
       return
     }
 
@@ -63,12 +70,12 @@ async function handleScanRequest(
         payload,
       }) as ContentScriptResponse
     } catch {
-      sendResponse({ success: false, error: 'Content script not available on this page' })
+      sendResponse({ success: false, error: userMessages.scan.pageNotReady })
       return
     }
 
     if (!response?.success || !response.images || !response.pageUrl) {
-      sendResponse({ success: false, error: response?.error ?? 'Scan failed' })
+      sendResponse({ success: false, error: response?.error ?? userMessages.scan.failed })
       return
     }
 
@@ -91,7 +98,7 @@ async function handleScanRequest(
 
     sendResponse({ success: true, count: persisted.length })
   } catch (err) {
-    const msg = err instanceof Error ? err.message : 'Unknown error'
+    const msg = err instanceof Error ? err.message : userMessages.scan.unknown
     sendResponse({ success: false, error: msg })
   }
 }
@@ -113,7 +120,7 @@ async function handleDownloadRequest(
     sendResponse({ success: true, count: targets.length })
   } catch (err) {
     chrome.alarms.clear('keepAlive')
-    const msg = err instanceof Error ? err.message : 'Unknown error'
+    const msg = err instanceof Error ? err.message : userMessages.download.unknown
     sendResponse({ success: false, error: msg })
   }
 }

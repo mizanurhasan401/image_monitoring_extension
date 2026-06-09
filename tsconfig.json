@@ -16,6 +16,6 @@
     "isolatedModules": true,
     "useDefineForClassFields": true
   },
-  "include": ["src"],
-  "exclude": ["node_modules", "dist", "tests"]
+  "include": ["src", "tests/unit/**/*.ts", "tests/component/**/*.tsx", "tests/setup.ts"],
+  "exclude": ["node_modules", "dist", "tests/e2e"]
 }

@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react'
 import { useImageStore } from '@/store/imageStore'
 import { useSettingsStore } from '@/store/settingsStore'
 import type { ExtractedImage } from '@/types/image'
+import { toUserMessage, userMessages } from '@/utils/userMessages'
 
 interface DownloadState {
   isDownloading: boolean
@@ -34,10 +35,10 @@ export function useDownload(): UseDownloadReturn {
         payload: { ids, folder: defaultFolder },
       }) as { success: boolean; error?: string }
 
-      if (!response?.success) throw new Error(response?.error ?? 'Download failed')
+      if (!response?.success) throw new Error(response?.error ?? userMessages.download.failed)
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Unknown error'
-      setState(s => ({ ...s, error: msg }))
+      const raw = err instanceof Error ? err.message : userMessages.download.unknown
+      setState(s => ({ ...s, error: toUserMessage(raw, userMessages.download.unknown) }))
     } finally {
       setState(s => ({ ...s, isDownloading: false, progress: null }))
     }

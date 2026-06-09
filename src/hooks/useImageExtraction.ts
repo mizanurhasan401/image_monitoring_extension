@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react'
 import { useImageStore } from '@/store/imageStore'
 import { imageRepository } from '@/storage/imageRepository'
+import { toUserMessage, userMessages } from '@/utils/userMessages'
 
 interface UseImageExtractionReturn {
   extract: (options?: { scroll?: boolean }) => Promise<void>
@@ -25,7 +26,7 @@ export function useImageExtraction(): UseImageExtractionReturn {
       }) as { success: boolean; count?: number; error?: string }
 
       if (!response?.success) {
-        throw new Error(response?.error ?? 'Scan failed')
+        throw new Error(response?.error ?? userMessages.scan.failed)
       }
 
       // Reload from IndexedDB after SW saves the new images
@@ -35,8 +36,8 @@ export function useImageExtraction(): UseImageExtractionReturn {
         setImages(images)
       }
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Unknown error'
-      setError(msg)
+      const raw = err instanceof Error ? err.message : userMessages.scan.unknown
+      setError(toUserMessage(raw, userMessages.scan.unknown))
     } finally {
       setIsExtracting(false)
       setScanning(false)
